@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "@types/axios": "^0.9.36",
+    "axios": "^1.9.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0"
+  }
+}
