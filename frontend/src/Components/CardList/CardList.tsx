@@ -1,18 +1,23 @@
-import React, { JSX } from 'react'
+import React, { JSX, SyntheticEvent } from 'react'
 import Card from '../Card/Card'
+import { CompanySearch } from '../../company'
+import {v4 as uuidv4} from "uuid";
 
-interface Props {} 
+interface Props {
+  searchResults : CompanySearch[];
+  onPortfolioCreate : (e:SyntheticEvent)=> void;
+} 
 
-const CardList : React.FC<Props> = (props: Props) : JSX.Element => {
-  return (
-    <div>
-        <Card ShowName='Peaky Blinders' LeadActor='Cillian Murphy' Description=' A gangster family epic set in 1900s England, centering on a gang who sew razor blades in the peaks of their caps, and their fierce boss Tommy Shelby.'/>
-        
-        <Card ShowName='Suits' LeadActor='Gabriel Macht' Description=' On the run from a drug deal gone bad, brilliant college dropout Mike Ross finds himself working with Harvey Specter, one of New York City best lawyers'/>
-
-        <Card ShowName='Game of Thrones' LeadActor='Kit Harington' Description='Nine noble families fight for control over the lands of Westeros, while an ancient enemy returns after being dormant for millennia.'/>
-    </div>
-  )
+const CardList: React.FC<Props> = ({ searchResults,onPortfolioCreate }: Props): JSX.Element => {
+  return <>
+    {searchResults.length > 0 ? (
+      searchResults.map((result) => {
+        return <Card id={result.symbol} key={uuidv4()} searchResult={result} onPortfolioCreate={onPortfolioCreate}/>
+      })
+    ) : (
+      <h2>No Results</h2>
+    )}
+  </>
 }
 
 export default CardList
