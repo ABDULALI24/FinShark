@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'; 
-import { FaHome, FaIcons } from 'react-icons/fa';
+import { FaChartBar, FaFileAlt, FaFileInvoiceDollar, FaHome, FaIcons, FaMoneyBill, FaTable, FaTablet, FaTabletAlt, FaTableTennis, FaTablets } from 'react-icons/fa';
+import { SlGraph } from "react-icons/sl"
 
 interface Props {}
 
@@ -27,9 +28,34 @@ const Sidebar = (props: Props) => {
               to="income-statement"
               className="flex md:min-w-full text-blueGray-500 text-medium uppercase font-bold block pt-1 pb-4 no-underline"
             >
-              <FaHome/>
+              <FaTable/>
               <h6 className="ml-3">Income Statement</h6>
             </Link>
+
+             <Link
+              to="balance-sheet"
+              className="flex md:min-w-full text-blueGray-500 text-medium uppercase font-bold block pt-1 pb-4 no-underline"
+            >
+              <FaFileAlt/>
+              <h6 className="ml-3">Balance Sheet</h6>
+            </Link>
+
+              <Link
+              to="cashflow-statement"
+              className="flex md:min-w-full text-blueGray-500 text-medium uppercase font-bold block pt-1 pb-4 no-underline"
+            >
+              <FaMoneyBill/>
+              <h6 className="ml-3">Cashflow Statement</h6>
+            </Link>
+
+            <Link
+              to="historical-dividend"
+              className="flex md:min-w-full text-blueGray-500 text-medium uppercase font-bold block pt-1 pb-4 no-underline"
+            >
+              <SlGraph />
+              <h6 className="ml-3">Historical Dividend</h6>
+            </Link>
+
           </div>
         </div>
       </div>
