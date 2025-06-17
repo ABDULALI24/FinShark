@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
 using api.DTOs.Stock;
+using api.Helpers;
 using api.Interface;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ namespace api.Repository
     public class StockRepository : IStockRepository
     {
         private readonly ApplicationDBContext _context;
-       
+
         public StockRepository(ApplicationDBContext context)
         {
             _context = context;
@@ -42,12 +43,35 @@ namespace api.Repository
 
         public async Task<Stock?> GetByIdAsync(int id)
         {
-           return await _context.Stocks.Include(c => c.Comments).FirstOrDefaultAsync(i => i.Id == id);
+            return await _context.Stocks.Include(c => c.Comments).FirstOrDefaultAsync(i => i.Id == id);
         }
 
-        public async Task<List<Stock>> GettAllAsync()
+        public async Task<List<Stock>> GettAllAsync(QueryObject query)
         {
-            return await _context.Stocks.Include(c => c.Comments).ToListAsync();
+            var stocks = _context.Stocks.Include(c => c.Comments).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query.CompanyName))
+            {
+                stocks = stocks.Where(s => s.CompanyName.Contains(query.CompanyName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Symbol))
+            {
+                stocks = stocks.Where(s => s.Symbol.Contains(query.Symbol));
+            }
+
+             if (!string.IsNullOrWhiteSpace(query.SortBy))
+            {
+                if (query.SortBy.Equals("Symbol", StringComparison.OrdinalIgnoreCase))
+                {
+                    stocks = query.IsDecsending ? stocks.OrderByDescending(s => s.Symbol) : stocks.OrderBy(s => s.Symbol);
+                }
+            }
+
+            var skipNumber = (query.PageNumber - 1) * query.PageSize;
+
+            return await stocks.Skip(skipNumber).Take(query.PageSize).ToListAsync();
+
         }
 
         public Task<bool> StockExists(int id)
@@ -73,5 +97,6 @@ namespace api.Repository
             await _context.SaveChangesAsync();
             return stockModel;
         }
+        
     }
 }
