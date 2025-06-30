@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using api.DTOs.Comment;
 using api.Models;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.AspNetCore.Identity;
 
 namespace api.Mappers
 {
@@ -18,6 +19,7 @@ namespace api.Mappers
                 Title = commentModel.Title,
                 Content = commentModel.Content,
                 CreatedOn = commentModel.CreatedOn,
+                CreatedBy = commentModel.AppUser.UserName,
                 StockId = commentModel.StockId
             };
         }
