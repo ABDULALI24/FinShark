@@ -32,7 +32,7 @@ export const UserProvider  = ({children} : Props) => {
         if(user && token){
             setUser(JSON.parse(user));
             setToken(token);
-            axios.defaults.headers.common["Authorization"] = "Bearer" +token;
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         }
         setIsReady(true);
     }, []);
@@ -47,7 +47,7 @@ export const UserProvider  = ({children} : Props) => {
             if (res) {
               localStorage.setItem("token", res?.data.token);
               const userObj = {
-                userName: res?.data.userName,
+                userName: res?.data.username,
                 email: res?.data.email,
               };
               localStorage.setItem("user", JSON.stringify(userObj));
@@ -66,7 +66,7 @@ export const UserProvider  = ({children} : Props) => {
             if(res){
                 localStorage.setItem("token", res?.data?.token);
                 const userObj = {
-                    userName: res?.data.userName,
+                    userName: res?.data.username,
                     email: res?.data.email,
                 }
                 localStorage.setItem("user", JSON.stringify(userObj));

@@ -13,6 +13,7 @@ using api.Extensions;
 using api.DTOs.Stock;
 using Microsoft.AspNetCore.Authorization;
 using api.Helpers;
+using System.Security.Claims;
 
 
 namespace api.Controllers
@@ -65,10 +66,17 @@ namespace api.Controllers
 
         [HttpPost]
         [Route("{symbol:alpha}")]
+        [Authorize]
         public async Task<IActionResult> Create([FromRoute] string symbol, CreateCommentDto commentDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            Console.WriteLine("User claims:");
+            foreach (var claim in User.Claims)
+            {
+                Console.WriteLine($"Type: {claim.Type}, Value: {claim.Value}");
+            }
 
             var stock = await _stockRepo.GetBySymbolAsync(symbol);
 
@@ -76,14 +84,39 @@ namespace api.Controllers
             {
                 stock = await _fmpService.FindStockBySymbolAsync(symbol);
                 if(stock == null)
-                    {return BadRequest("Stock does not Exists");}
-                else{
+                {
+                    return BadRequest("Stock does not Exists");
+                }
+                else
+                {
                     await _stockRepo.CreateAsync(stock);
                 }
             }
 
-            var userName = User.GetUserName();
-            var appUser = await _userManager.FindByNameAsync(userName); 
+            // Try to get username from various possible claim types
+            var userName = User.Claims.FirstOrDefault(c => c.Type == "given_name")?.Value
+                ?? User.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value
+                ?? User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value
+                ?? User.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+
+            if (string.IsNullOrEmpty(userName))
+            {
+                Console.WriteLine("Available claims:");
+                foreach (var claim in User.Claims)
+                {
+                    Console.WriteLine($"{claim.Type}: {claim.Value}");
+                }
+                return Unauthorized("Username claim not found in token");
+            }
+
+            Console.WriteLine($"Found username in claims: {userName}");
+
+            var appUser = await _userManager.FindByNameAsync(userName);
+            if (appUser == null)
+            {
+                Console.WriteLine($"User not found in database: {userName}");
+                return NotFound($"User not found: {userName}");
+            }
 
             var commentModel = commentDto.ToCommentFromCreate(stock.Id);
             commentModel.AppUserId = appUser.Id;

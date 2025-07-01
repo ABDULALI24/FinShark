@@ -11,7 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using api.Data;
 using System.Text.Json.Serialization;
-
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,7 +54,39 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["JWT:Audience"],
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigingKey"])),
-        
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+        NameClaimType = "unique_name",
+        RoleClaimType = ClaimTypes.Role
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = context =>
+        {
+            Console.WriteLine("Token validation event triggered");
+            var claims = context.Principal.Claims.ToList();
+            Console.WriteLine("Claims found in token:");
+            foreach (var claim in claims)
+            {
+                Console.WriteLine($"Type: {claim.Type}, Value: {claim.Value}");
+            }
+
+            // Add username claim if not present
+            var userName = claims.FirstOrDefault(c => c.Type == "given_name" || c.Type == "unique_name")?.Value;
+            if (!string.IsNullOrEmpty(userName) && !claims.Any(c => c.Type == ClaimTypes.Name))
+            {
+                var identity = context.Principal.Identity as ClaimsIdentity;
+                identity?.AddClaim(new Claim(ClaimTypes.Name, userName));
+            }
+
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+            return Task.CompletedTask;
+        }
     };
 });
 

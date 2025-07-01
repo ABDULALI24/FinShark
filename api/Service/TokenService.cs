@@ -23,26 +23,36 @@ namespace api.Service
         }
         public string CreateToken(AppUser user)
         {
-           var claims = new List<Claim>
-           {
-               new Claim(JwtRegisteredClaimNames.Email, user.Email),
-               new Claim(JwtRegisteredClaimNames.GivenName, user.UserName)
-           };
+            Console.WriteLine($"Creating token for user: {user.UserName}");
+            
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
+                new Claim(JwtRegisteredClaimNames.GivenName, user.UserName),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
+            };
 
-           var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
+            Console.WriteLine("Claims being added to token:");
+            foreach (var claim in claims)
+            {
+                Console.WriteLine($"Type: {claim.Type}, Value: {claim.Value}");
+            }
 
-           var tokenDescriptor = new SecurityTokenDescriptor
-           {
-               Subject = new ClaimsIdentity(claims),
-               Expires = DateTime.Now.AddDays(7),
-               SigningCredentials = creds,
-               Issuer = _config["JWT:Issuer"],
-               Audience = _config["JWT:Audience"]
-           };
+            var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
 
-           var tokenHandler = new JwtSecurityTokenHandler();
-           var token = tokenHandler.CreateToken(tokenDescriptor);
-           return tokenHandler.WriteToken(token);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims, "Bearer"),
+                Expires = DateTime.Now.AddDays(7),
+                SigningCredentials = creds,
+                Issuer = _config["JWT:Issuer"],
+                Audience = _config["JWT:Audience"]
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 }

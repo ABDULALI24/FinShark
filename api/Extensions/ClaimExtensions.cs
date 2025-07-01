@@ -11,7 +11,23 @@ namespace api.Extensions
     {
         public static string GetUserName(this ClaimsPrincipal user)
         {
-            return user.Claims.SingleOrDefault( x => x.Type.Equals("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")).Value;
+            // Try to get username from various possible claim types
+            var userName = user.Claims.FirstOrDefault(c => c.Type == "given_name")?.Value
+                ?? user.Claims.FirstOrDefault(c => c.Type == "unique_name")?.Value
+                ?? user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value
+                ?? user.Claims.FirstOrDefault(c => c.Type == "name")?.Value;
+
+            if (string.IsNullOrEmpty(userName))
+            {
+                Console.WriteLine("Available claims in GetUserName:");
+                foreach (var claim in user.Claims)
+                {
+                    Console.WriteLine($"Type: {claim.Type}, Value: {claim.Value}");
+                }
+                throw new UnauthorizedAccessException("User name claim not found");
+            }
+
+            return userName;
         }
     }
 }
