@@ -4,10 +4,10 @@ import { UserProfileToken } from "../Models/User";
 
 const api = "http://localhost:5001/api/";
 
-export const loginAPI = async (username: string, password: string) => {
+export const loginAPI = async (userName: string, password: string) => {
     try{
         const data = await axios.post<UserProfileToken>(api + "account/login",{
-            username : username,
+            userName : userName,
             password : password
         });
         return data;
@@ -17,11 +17,11 @@ export const loginAPI = async (username: string, password: string) => {
 }
 
 
-export const registerAPI = async (email : string, username: string, password: string) => {
+export const registerAPI = async (email : string, userName: string, password: string) => {
     try{
         const data = await axios.post<UserProfileToken>(api + "account/register",{
             email : email,
-            username : username,
+            userName : userName,
             password : password
         });
         return data;

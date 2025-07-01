@@ -82,8 +82,8 @@ namespace api.Controllers
                 }
             }
 
-            var username = User.GetUserName();
-            var appUser = await _userManager.FindByNameAsync(username); 
+            var userName = User.GetUserName();
+            var appUser = await _userManager.FindByNameAsync(userName); 
 
             var commentModel = commentDto.ToCommentFromCreate(stock.Id);
             commentModel.AppUserId = appUser.Id;

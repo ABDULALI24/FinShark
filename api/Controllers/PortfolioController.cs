@@ -39,8 +39,8 @@ namespace api.Controllers
         [Authorize]
         public async Task<IActionResult> GetUserPortfolio()
         {
-            var username = User.GetUserName();
-            var appUser = await _userManager.FindByNameAsync(username);
+            var userName = User.GetUserName();
+            var appUser = await _userManager.FindByNameAsync(userName);
             var userPortfolio = await _portfolioRepo.GetUserPortfolio(appUser);
             return Ok(userPortfolio);
         }
@@ -49,8 +49,8 @@ namespace api.Controllers
         [Authorize]
         public async Task<IActionResult> AddPortfolio(string symbol)
         {
-            var username = User.GetUserName();
-            var appUser = await _userManager.FindByNameAsync(username);
+            var userName = User.GetUserName();
+            var appUser = await _userManager.FindByNameAsync(userName);
             var stock = await _stockRepo.GetBySymbolAsync(symbol);
 
              if(stock == null)
@@ -86,8 +86,8 @@ namespace api.Controllers
         [Authorize]
         public async Task<IActionResult> DeletePortfolio(string symbol)
         {
-            var username = User.GetUserName();
-            var appUser = await _userManager.FindByNameAsync(username);
+            var userName = User.GetUserName();
+            var appUser = await _userManager.FindByNameAsync(userName);
 
             var userPortfolio = await _portfolioRepo.GetUserPortfolio(appUser);
 
